@@ -9,46 +9,55 @@ config {
 }
 
 SELECT
+
   business_id,
   TRIM(name) AS name,
   TRIM(address) AS address,
   TRIM(city) AS city,
   TRIM(state) AS state,
   TRIM(postal_code) AS postal_code,
-  CAST(stars AS FLOAT64) AS stars,
-  CAST(review_count AS INT64) AS review_count,
+  stars,
+  review_count,
   CAST(is_open AS BOOL) AS is_open,
+  latitude,
+  longitude,
 
-  -- Fix zero coordinates
-  CASE WHEN latitude = 0 AND longitude = 0
-    THEN NULL ELSE latitude
-  END AS latitude,
-  CASE WHEN latitude = 0 AND longitude = 0
-    THEN NULL ELSE longitude
-  END AS longitude,
-
-  -- Handle null categories
+  -- Categories
   COALESCE(categories, 'Uncategorized') AS categories,
 
-  -- Attributes with null safety
-  CASE WHEN attributes IS NOT NULL
-    THEN JSON_VALUE(attributes, '$.RestaurantsPriceRange2')
-    ELSE NULL
-  END AS price_range,
-  CASE WHEN attributes IS NOT NULL
-    THEN JSON_VALUE(attributes, '$.WiFi')
+  -- Attributes — already correct types, use directly
+  attributes.RestaurantsPriceRange2 AS price_range,
+  attributes.BikeParking AS bike_parking,
+  attributes.OutdoorSeating AS outdoor_seating,
+  attributes.BusinessAcceptsCreditCards AS accepts_credit_cards,
+  attributes.RestaurantsTakeOut AS takeout,
+  attributes.RestaurantsDelivery AS delivery,
+  attributes.GoodForKids AS good_for_kids,
+  attributes.HasTV AS has_tv,
+  attributes.RestaurantsReservations AS reservations,
+  attributes.RestaurantsGoodForGroups AS good_for_groups,
+  attributes.WheelchairAccessible AS wheelchair_accessible,
+
+  -- WiFi is STRING — needs cleaning
+  CASE
+    WHEN attributes.WiFi IN ("'no'", 'no') THEN 'no'
+    WHEN attributes.WiFi IN ("'free'", 'free') THEN 'free'
+    WHEN attributes.WiFi IN ("'paid'", 'paid') THEN 'paid'
     ELSE NULL
   END AS wifi,
-  CASE WHEN attributes IS NOT NULL
-    THEN JSON_VALUE(attributes, '$.OutdoorSeating')
-    ELSE NULL
-  END AS outdoor_seating,
-  CASE WHEN attributes IS NOT NULL
-    THEN JSON_VALUE(attributes, '$.BikeParking')
-    ELSE NULL
-  END AS bike_parking
 
-  -- Excluding hours — not needed for analysis
+  -- Alcohol is STRING
+  CASE
+    WHEN attributes.Alcohol IN ("'none'", 'none', 'None') THEN 'none'
+    WHEN attributes.Alcohol IN ("'beer_and_wine'", 'beer_and_wine') THEN 'beer_and_wine'
+    WHEN attributes.Alcohol IN ("'full_bar'", 'full_bar') THEN 'full_bar'
+    ELSE NULL
+  END AS alcohol,
+  
+  attributes.BusinessParking.lot AS parking_lot,
+  attributes.BusinessParking.street AS parking_street,
+  attributes.BusinessParking.valet AS parking_valet,
+  attributes.BusinessParking.garage AS parking_garage
 
 FROM ${ref("business")}
 
