@@ -1,0 +1,57 @@
+config {
+  type: "table",
+  schema: "staging",
+  description: "Cleaned and typed business data from raw Yelp dataset",
+  assertions: {
+    uniqueKey: ["business_id"],
+    nonNull: ["business_id", "name", "city", "state", "stars"]
+  }
+}
+
+SELECT
+  business_id,
+  TRIM(name)                                    AS name,
+  TRIM(address)                                 AS address,
+  TRIM(city)                                    AS city,
+  TRIM(state)                                   AS state,
+  TRIM(postal_code)                             AS postal_code,
+  CAST(stars AS FLOAT64)                        AS stars,
+  CAST(review_count AS INT64)                   AS review_count,
+  CAST(is_open AS BOOL)                         AS is_open,
+
+  -- Fix zero coordinates
+  CASE WHEN latitude = 0 AND longitude = 0
+    THEN NULL ELSE latitude
+  END                                           AS latitude,
+  CASE WHEN latitude = 0 AND longitude = 0
+    THEN NULL ELSE longitude
+  END                                           AS longitude,
+
+  -- Handle null categories
+  COALESCE(categories, 'Uncategorized')         AS categories,
+
+  -- Attributes with null safety
+  CASE WHEN attributes IS NOT NULL
+    THEN JSON_VALUE(attributes, '$.RestaurantsPriceRange2')
+    ELSE NULL
+  END                                           AS price_range,
+  CASE WHEN attributes IS NOT NULL
+    THEN JSON_VALUE(attributes, '$.WiFi')
+    ELSE NULL
+  END                                           AS wifi,
+  CASE WHEN attributes IS NOT NULL
+    THEN JSON_VALUE(attributes, '$.OutdoorSeating')
+    ELSE NULL
+  END                                           AS outdoor_seating,
+  CASE WHEN attributes IS NOT NULL
+    THEN JSON_VALUE(attributes, '$.BikeParking')
+    ELSE NULL
+  END                                           AS bike_parking
+
+  -- Excluding hours — not needed for analysis
+
+FROM ${ref("business")}
+
+WHERE
+  business_id IS NOT NULL
+  AND stars IS NOT NULL

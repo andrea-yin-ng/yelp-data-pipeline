@@ -1,0 +1,6 @@
+defaultProject: project-9b9e551b-e2f7-46a3-b22
+defaultDataset: dataform
+defaultAssertionDataset: dataform_assertions
+dataformCoreVersion: 3.0.42
+vars:
+    raw_dataset: Yelp
