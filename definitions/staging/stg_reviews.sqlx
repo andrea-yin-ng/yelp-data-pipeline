@@ -1,0 +1,40 @@
+config {
+  type: "table",
+  schema: "staging",
+  name: "stg_reviews",
+  description: "Cleaned review data from Yelp review table",
+  assertions: {
+    uniqueKey: ["review_id"],
+    nonNull: ["review_id", "user_id", "business_id", "stars", "review_timestamp", "review_text"]
+  }
+}
+
+SELECT
+  review_id,
+  user_id,
+  business_id,
+
+  -- Already loaded as FLOAT64 and validated to be in range
+  stars,
+
+  -- Already loaded as TIMESTAMP
+  date AS review_timestamp,
+  DATE(date) AS review_date,
+  EXTRACT(YEAR FROM date) AS review_year,
+  EXTRACT(MONTH FROM date) AS review_month,
+  EXTRACT(DAYOFWEEK FROM date) AS review_day_of_week,
+
+  -- Clean text
+  TRIM(text) AS review_text,
+
+  -- Yelp data contains some negative vote values; floor them at 0
+  GREATEST(useful, 0) AS useful,
+  GREATEST(funny, 0) AS funny,
+  GREATEST(cool, 0) AS cool,
+
+  -- Derived feature
+  GREATEST(useful, 0) + GREATEST(funny, 0) + GREATEST(cool, 0) AS total_engagement
+
+FROM ${ref("review")}
+WHERE stars BETWEEN 1 AND 5
+  AND TRIM(text) != ""

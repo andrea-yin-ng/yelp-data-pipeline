@@ -1,3 +1,6 @@
+
+--Tell BigQuery to reference this table when we query
+-- This is needed because we loaded our data into Bigquery
 config {
   type: "declaration",
   schema: "Yelp",
