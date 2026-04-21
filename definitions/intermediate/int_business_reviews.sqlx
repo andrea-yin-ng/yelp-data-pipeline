@@ -1,0 +1,60 @@
+config {
+  type: "table",
+  schema: "intermediate",
+  name: "int_business_reviews",
+  description: "Joined business and review data, one row per review enriched with business attributes. Includes US and Canadian businesses and filters invalid state codes."
+}
+
+SELECT
+  r.review_id,
+  r.user_id,
+  b.business_id,
+  b.name AS business_name,
+  b.city,
+  b.state,
+  CASE
+    WHEN b.state = 'AB' THEN 'Canada' -- dataset specifically only includes on Canadian state
+    ELSE 'United States'
+  END AS country,
+  b.postal_code,
+  b.latitude,
+  b.longitude,
+  b.categories,
+  b.is_open,
+  b.stars AS business_stars,
+  b.review_count AS business_review_count,
+  b.price_range,
+  b.wifi,
+  b.outdoor_seating,
+  b.bike_parking,
+  b.accepts_credit_cards,
+  b.takeout,
+  b.delivery,
+  b.good_for_kids,
+  b.has_tv,
+  b.reservations,
+  b.good_for_groups,
+  b.wheelchair_accessible,
+  b.alcohol,
+  b.parking_lot,
+  b.parking_street,
+  b.parking_valet,
+  b.parking_garage,
+  r.stars AS review_stars,
+  r.review_text,
+  r.review_timestamp,
+  r.review_date,
+  r.review_year,
+  r.review_month,
+  r.review_day_of_week,
+  r.useful,
+  r.funny,
+  r.cool,
+  r.total_engagement,
+  r.stars - b.stars AS stars_vs_business_avg
+FROM ${ref("stg_reviews")} r
+INNER JOIN ${ref("stg_businesses")} b
+  ON r.business_id = b.business_id
+WHERE b.state IS NOT NULL
+  AND TRIM(b.state) != ''
+  AND b.state NOT IN ('XMS')
