@@ -1,0 +1,47 @@
+config {
+  type: "table",
+  schema: "staging",
+  name: "stg_users",
+  description: "Cleaned user data from Yelp dataset",
+  assertions: {
+    uniqueKey: ["user_id"],
+    nonNull: ["user_id", "user_name", "yelping_since"]
+  }
+}
+
+SELECT
+  user_id,
+  TRIM(name) AS user_name,
+  yelping_since,
+  DATE(yelping_since) AS yelping_since_date,
+  EXTRACT(YEAR FROM yelping_since) AS yelping_since_year,
+  review_count,
+  useful,
+  funny,
+  cool,
+  fans,
+  average_stars,
+  friends AS friends_raw,
+  elite AS elite_raw,
+  CASE
+    WHEN friends IS NULL OR TRIM(friends) IN ('', 'None') THEN 0
+    ELSE ARRAY_LENGTH(SPLIT(friends, ','))
+  END AS friend_count,
+  CASE
+    WHEN elite IS NULL OR TRIM(elite) IN ('', 'None') THEN 0
+    ELSE ARRAY_LENGTH(SPLIT(elite, ','))
+  END AS elite_year_count,
+  compliment_hot,
+  compliment_more,
+  compliment_profile,
+  compliment_cute,
+  compliment_list,
+  compliment_note,
+  compliment_plain,
+  compliment_cool,
+  compliment_funny,
+  compliment_writer,
+  compliment_photos
+FROM ${ref("users")}
+WHERE user_id IS NOT NULL
+  AND TRIM(user_id) != ''
