@@ -22,6 +22,7 @@ SELECT
   DATE(date) AS review_date,
   EXTRACT(YEAR FROM date) AS review_year,
   EXTRACT(MONTH FROM date) AS review_month,
+  EXTRACT(DAY FROM date) AS review_day_of_month,
   EXTRACT(DAYOFWEEK FROM date) AS review_day_of_week,
 
   -- Clean text

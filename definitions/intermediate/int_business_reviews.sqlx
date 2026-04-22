@@ -50,6 +50,7 @@ SELECT
   r.review_date,
   r.review_year,
   r.review_month,
+  r.review_day_of_month,
   r.review_day_of_week,
   -- engagement
   r.useful,
