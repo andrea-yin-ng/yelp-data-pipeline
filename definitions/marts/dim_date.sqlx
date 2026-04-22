@@ -1,0 +1,12 @@
+config {
+  type: "table"
+}
+
+SELECT DISTINCT
+  review_date AS date_id,
+  review_date AS full_date,
+  review_year AS year,
+  review_month AS month,
+  review_day_of_month AS day,
+  review_day_of_week AS day_of_week
+FROM ${ref("int_business_reviews")}
