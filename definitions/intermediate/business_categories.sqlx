@@ -1,11 +1,11 @@
 config {
-    type: "table",
-    schema: "intermediate",
-    name: "int_business_categories",
-    description: "One row per business per category — categories unnested from comma separated string for category-level analysis"
+  type: "table",
+  schema: "intermediate",
+  name: "int_business_categories",
+  description: "One row per business per category, with categories unnested from a comma-separated string for category-level analysis"
 }
 
-SELECT
+SELECT DISTINCT
   b.business_id,
   b.name AS business_name,
   b.city,
@@ -13,8 +13,7 @@ SELECT
   CASE
     WHEN b.state = 'AB' THEN 'Canada'
     ELSE 'United States'
-END
-  AS country,
+  END AS country,
   b.stars AS business_stars,
   b.review_count AS business_review_count,
   b.is_open,
@@ -26,12 +25,12 @@ END
   b.good_for_kids,
   b.alcohol,
   TRIM(category) AS category
-FROM
-  ${ref("stg_businesses")} b
-CROSS JOIN
-  UNNEST(SPLIT(b.categories, ', ')) AS category
-WHERE
-  TRIM(category) != ''
+FROM ${ref("stg_businesses")} b
+CROSS JOIN UNNEST(SPLIT(b.categories, ', ')) AS category
+WHERE b.categories IS NOT NULL
+  AND TRIM(b.categories) != ''
+  AND TRIM(category) != ''
   AND TRIM(category) != 'Uncategorized'
-  AND b.state NOT IN ('XMS')
   AND b.state IS NOT NULL
+  AND TRIM(b.state) != ''
+  AND b.state NOT IN ('XMS')
