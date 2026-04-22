@@ -1,0 +1,14 @@
+config {
+  type: "table"
+}
+
+SELECT
+  review_id,
+  business_id,
+  user_id,
+  review_date AS date_id,  
+  review_stars AS stars,
+  useful,
+  funny,
+  cool
+FROM ${ref("int_business_reviews")}
