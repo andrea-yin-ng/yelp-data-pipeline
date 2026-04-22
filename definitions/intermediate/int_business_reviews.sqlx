@@ -2,18 +2,19 @@ config {
   type: "table",
   schema: "intermediate",
   name: "int_business_reviews",
-  description: "Joined business and review data, one row per review enriched with business attributes. Includes US and Canadian businesses and filters invalid state codes."
+  description: "One row per review enriched with business and user attributes. Includes US and Canadian businesses and filters invalid state codes."
 }
-
 SELECT
+  -- review identifiers
   r.review_id,
   r.user_id,
-  b.business_id,
+  r.business_id,
+  -- business attributes
   b.name AS business_name,
   b.city,
   b.state,
   CASE
-    WHEN b.state = 'AB' THEN 'Canada' -- dataset specifically only includes on Canadian state
+    WHEN b.state = 'AB' THEN 'Canada' -- dataset-specific: only Alberta appears as Canada
     ELSE 'United States'
   END AS country,
   b.postal_code,
@@ -21,8 +22,10 @@ SELECT
   b.longitude,
   b.categories,
   b.is_open,
+  -- business metrics
   b.stars AS business_stars,
   b.review_count AS business_review_count,
+  -- business attributes
   b.price_range,
   b.wifi,
   b.outdoor_seating,
@@ -40,6 +43,7 @@ SELECT
   b.parking_street,
   b.parking_valet,
   b.parking_garage,
+  -- review attributes
   r.stars AS review_stars,
   r.review_text,
   r.review_timestamp,
@@ -47,14 +51,29 @@ SELECT
   r.review_year,
   r.review_month,
   r.review_day_of_week,
+  -- engagement
   r.useful,
   r.funny,
   r.cool,
   r.total_engagement,
-  r.stars - b.stars AS stars_vs_business_avg
+  -- user attributes
+  u.user_name,
+  u.yelping_since,
+  u.yelping_since_year,
+  u.review_count AS user_review_count,
+  u.average_stars AS user_average_stars,
+  u.fans,
+  u.friend_count,
+  u.elite_year_count,
+  u.total_compliments,
 FROM ${ref("stg_reviews")} r
+-- business join
 INNER JOIN ${ref("stg_businesses")} b
   ON r.business_id = b.business_id
+-- user features 
+LEFT JOIN ${ref("int_user_features")} u
+  ON r.user_id = u.user_id
+-- data quality filters
 WHERE b.state IS NOT NULL
   AND TRIM(b.state) != ''
   AND b.state NOT IN ('XMS')
