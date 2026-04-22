@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  schema: "intermediate",
+  name: "int_user_friends",
+  description: "One row per user-friend pair derived from the Yelp friends field"
+}
+
+SELECT
+  u.user_id,
+  TRIM(friend_id) AS friend_user_id
+FROM ${ref("stg_users")} u,
+UNNEST(SPLIT(u.friends_raw, ',')) AS friend_id
+WHERE u.friends_raw IS NOT NULL
+  AND TRIM(u.friends_raw) NOT IN ('', 'None')
+  AND TRIM(friend_id) != ''

@@ -1,0 +1,46 @@
+config {
+  type: "table",
+  schema: "intermediate",
+  name: "int_user_features",
+  description: "User-level derived features from staged Yelp user data"
+}
+
+SELECT
+  user_id,
+  user_name,
+  yelping_since,
+  yelping_since_date,
+  yelping_since_year,
+  review_count,
+  useful,
+  funny,
+  cool,
+  fans,
+  average_stars,
+  friends_raw,
+  elite_raw,
+  friend_count,
+  elite_year_count,
+  compliment_hot,
+  compliment_more,
+  compliment_profile,
+  compliment_cute,
+  compliment_list,
+  compliment_note,
+  compliment_plain,
+  compliment_cool,
+  compliment_funny,
+  compliment_writer,
+  compliment_photos,
+  compliment_hot
+    + compliment_more
+    + compliment_profile
+    + compliment_cute
+    + compliment_list
+    + compliment_note
+    + compliment_plain
+    + compliment_cool
+    + compliment_funny
+    + compliment_writer
+    + compliment_photos AS total_compliments
+FROM ${ref("stg_users")}
