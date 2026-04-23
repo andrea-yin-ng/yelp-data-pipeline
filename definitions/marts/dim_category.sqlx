@@ -1,0 +1,14 @@
+config {
+  type: "table"
+}
+
+SELECT
+  ROW_NUMBER() OVER () AS category_id,
+  category_name
+FROM (
+  SELECT DISTINCT
+    TRIM(category) AS category_name
+  FROM ${ref("int_business_reviews")},
+  UNNEST(SPLIT(categories, ',')) AS category
+  WHERE categories IS NOT NULL
+)
