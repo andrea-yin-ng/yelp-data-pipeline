@@ -1,5 +1,7 @@
 config {
-  type: "table"
+  type: "table",
+  schema: "marts",
+  name: "dim_date"
 }
 
 SELECT DISTINCT
