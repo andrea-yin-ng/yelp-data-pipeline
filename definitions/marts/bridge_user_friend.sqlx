@@ -1,0 +1,10 @@
+config {
+  type: "table"
+}
+
+SELECT
+  u.user_id,
+  friend_id
+FROM ${ref("int_user_features")} u,
+UNNEST(SPLIT(u.friends_raw, ',')) AS friend_id
+WHERE u.friends_raw IS NOT NULL
