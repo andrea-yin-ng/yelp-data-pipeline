@@ -1,0 +1,9 @@
+config {
+  type: "table"
+}
+
+SELECT DISTINCT
+  CONCAT(city, '_', state) AS location_id,
+  city,
+  state
+FROM ${ref("int_business_reviews")}
