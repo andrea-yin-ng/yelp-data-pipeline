@@ -1,0 +1,14 @@
+config {
+  type: "table"
+}
+
+SELECT DISTINCT
+  user_id,
+  user_name AS name,
+  yelping_since_year,
+  user_review_count AS review_count,
+  user_average_stars AS average_stars,
+  fans,
+  friend_count,
+  total_compliments
+FROM ${ref("int_business_reviews")}
