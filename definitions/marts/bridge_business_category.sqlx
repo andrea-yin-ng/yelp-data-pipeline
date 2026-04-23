@@ -1,0 +1,12 @@
+config {
+  type: "table"
+}
+
+SELECT DISTINCT
+  b.business_id,
+  c.category_id
+FROM ${ref("int_business_reviews")} b,
+UNNEST(SPLIT(b.categories, ',')) AS category
+JOIN ${ref("dim_category")} c
+  ON TRIM(category) = c.category_name
+WHERE b.categories IS NOT NULL
