@@ -10,5 +10,6 @@ SELECT DISTINCT
   business_stars,
   business_review_count,
   CONCAT(city, '_', state) AS location_id,
-  postal_code
+  postal_code,
+  is_open
 FROM ${ref("int_business_reviews")}
