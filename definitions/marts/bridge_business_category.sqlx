@@ -1,20 +1,17 @@
 config {
   type: "table",
   schema: "marts",
-  name: "bridge_business_category",
+  name: "rept_bridge_business_category",
   description: "One row per business per category with business attributes — eliminates need for blending in Looker Studio"
 }
 
 SELECT DISTINCT
   b.business_id,
-  b.name                                    AS business_name,
+  b.name AS business_name,
   b.city,
   b.state,
-  b.stars                                   AS business_stars,
-  b.review_count                            AS business_review_count,
   b.is_open,
-  b.price_range,
-  TRIM(category)                            AS category_name
+  TRIM(category) AS category_name
 
 FROM ${ref("stg_businesses")} b
 CROSS JOIN UNNEST(SPLIT(b.categories, ',')) AS category
